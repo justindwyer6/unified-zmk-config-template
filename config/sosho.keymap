@@ -1,4 +1,8 @@
-//スクロール量の調整(デフォルト150)
+/*
+ * spinko-sosho keymap for the Elekit SO-SHO TH-601 (44-key split with L-trackpad, R-trackball).
+ * Translated from justindwyer6/qmk_firmware keyboards/lets_split/keymaps/spinko/keymap.c.
+ */
+
 #define ZMK_POINTING_DEFAULT_SCRL_VAL 150
 
 #include <behaviors.dtsi>
@@ -7,8 +11,37 @@
 #include <dt-bindings/zmk/pointing.h>
 #include <dt-bindings/zmk/outputs.h>
 
+#define QWERTY  0
+#define NAV     1
+#define NPAD    2
+#define SYM     3
+#define POINTER 4
+#define CLICK   5
+
 / {
-	behaviors {
+    behaviors {
+        // Layer-tap for D/F/J/K home-row keys.
+        // Hold enters the CLICK layer; tap types the letter.
+        // tap-preferred + require-prior-idle-ms prevents accidental clicks during fast typing.
+        clicklt: click_layer_tap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <125>;
+            flavor = "tap-preferred";
+            bindings = <&mo>, <&kp>;
+        };
+
+        // Backspace that becomes Delete when any modifier is held (spinko's M_BSDEL).
+        bsdel: bsdel {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&kp BSPC>, <&kp DEL>;
+            mods = <(MOD_LSFT|MOD_RSFT|MOD_LCTL|MOD_RCTL|MOD_LALT|MOD_RALT|MOD_LGUI|MOD_RGUI)>;
+        };
+
+        // Encoder-driven horizontal / vertical scroll (used on POINTER layer).
         ec_ms_l: ec_ms_h {
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
@@ -20,89 +53,87 @@
     };
 };
 
-//スクロールの調整
 &msc {
-    time-to-max-speed-ms = <0>;   // 即座に最大速度（加速なし）
-    acceleration-exponent = <0>;   // 加速なし
+    time-to-max-speed-ms = <0>;
+    acceleration-exponent = <0>;
 };
 
-/{
-    combos {
-        compatible = "zmk,combos";
-		//左クリックのコンボ 19はJのキー 20はKのキーに相当します。
-	    combo_LCLK {
-            timeout-ms = <50>;
-            key-positions = <19 20>;
-            bindings = <&mkp LCLK>;
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            // Base QWERTY. D/F/J/K are hold-taps into CLICK layer.
+            // Thumb row (row 3): outer=ENTER, inner-outer=Ctrl/Esc, inner=Cmd/Space, innermost=Shift.
+            // The spinko cmd/space<->shift positions are SWAPPED here per the ask.
+            bindings = <
+&lt NAV DEL    &kp Q       &kp W  &kp E              &kp R              &kp T          &kp Y  &kp U              &kp I              &kp O         &kp P          &bsdel
+&kp TAB        &kp A       &kp S  &clicklt CLICK D   &clicklt CLICK F   &kp G          &kp H  &clicklt CLICK J   &clicklt CLICK K   &kp L         &lt NAV SEMI   &kp TAB
+&lt SYM GRAVE  &lt NPAD Z  &kp X  &kp C              &kp V              &kp B          &kp N  &kp M              &kp COMMA          &mt RALT DOT  &lt NPAD FSLH  &lt SYM SQT
+&kp ENTER      &mt LCTRL ESC                         &mt LGUI SPACE     &kp LSHFT      &kp RSHFT              &mt RGUI SPACE                      &mt RCTRL BSLH &kp ENTER
+            >;
+
+            // Left encoder = brightness, Right encoder = volume.
+            sensor-bindings = <&inc_dec_kp C_BRI_DN C_BRI_UP  &inc_dec_kp C_VOL_DN C_VOL_UP>;
         };
 
-		//右クリックのコンボ 20 K 21 L
-        combo_RCLK {
-            timeout-ms = <50>;
-            key-positions = <20 21>;
-            bindings = <&mkp RCLK>;
+        nav_layer {
+            // spinko _NAV: arrows on right home row, media/brightness/volume on left, page-nav on inner columns.
+            // OPPOSIT/MOUSE references collapsed (OPPOSIT dropped, MOUSE becomes POINTER toggle).
+            bindings = <
+&tog NAV      &kp LG(LSHFT)   &kp LA(LSHFT)    &kp UP           &kp LA(LGUI)     &kp C_VOL_UP    &kp PG_UP  &kp RCTRL  &kp UP        &kp RCTRL  &trans   &kp BSPC
+&trans        &kp LCTRL       &mt LALT LEFT    &mt LSHFT DOWN   &mt LGUI RIGHT   &kp C_VOL_DN    &kp PG_DN  &kp LEFT   &kp DOWN      &kp RIGHT  &trans   &kp DEL
+&kp C_BRI_DN  &kp C_BRI_UP    &mt LALT C_PREV  &kp C_NEXT       &mt LALT C_PP    &kp C_MUTE      &kp RGUI   &kp RALT   &tog POINTER  &kp RALT   &kp ESC  &kp TAB
+&kp BSPC      &trans                                            &trans           &trans          &trans     &trans                                &trans   &trans
+            >;
         };
 
-		//ホイールクリックのコンボ 19 J 21 L
-	    combo_MCLK {
-            timeout-ms = <90>;
-            key-positions = <19 21>;
-            bindings = <&mkp MCLK>;
+        npad_layer {
+            // spinko _NPAD.
+            bindings = <
+&tog NPAD  &trans  &kp N7  &kp N8  &kp N9  &kp BSPC    &trans  &kp N7  &kp N8  &kp N9  &kp N0  &kp BSPC
+&trans     &trans  &kp N4  &kp N5  &kp N6  &kp DOT     &trans  &kp N4  &kp N5  &kp N6  &trans  &kp DEL
+&trans     &trans  &kp N1  &kp N2  &kp N3  &kp N0      &kp N0  &kp N1  &kp N2  &kp N3  &trans  &kp TAB
+&kp BSPC   &trans                          &trans      &trans  &trans                          &trans  &trans
+            >;
         };
 
-    };
-};
+        sym_layer {
+            // spinko _SYM.
+            bindings = <
+&tog SYM  &kp GRAVE  &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR    &trans  &kp AMPS  &kp STAR   &kp LPAR   &kp RPAR   &kp BSPC
+&trans    &kp EQUAL  &kp DLLR   &kp PRCNT  &kp CARET  &trans      &trans  &kp DLLR  &kp PRCNT  &kp CARET  &kp COLON  &kp GRAVE
+&trans    &kp MINUS  &kp EXCL   &kp AT     &kp HASH   &trans      &trans  &kp EXCL  &kp AT     &kp HASH   &kp QMARK  &kp TAB
+&kp BSPC  &trans                                      &trans      &trans  &trans                                     &kp PIPE   &trans
+            >;
+        };
 
-/{
-keymap {
-    compatible = "zmk,keymap";
+        pointer_layer {
+            // Pointing device / Bluetooth / output tuning.
+            // Encoders switch to horizontal (L) and vertical (R) scroll here.
+            bindings = <
+&tog POINTER  &trans          &trans  &trans  &trans  &trans      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &out OUT_BLE
+&trans        &trans          &trans  &trans  &trans  &trans      &trans        &mkp LCLK     &mkp MCLK     &mkp RCLK     &trans        &out OUT_USB
+&bt BT_CLR    &bt BT_CLR_ALL  &trans  &trans  &trans  &trans      &trans        &trans        &trans        &trans        &trans        &trans
+&trans        &trans                          &trans  &trans      &trans        &trans                                    &trans        &trans
+            >;
 
-    default_layer {
-        bindings = <
-            &kp TAB    &kp Q   &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
-            &kp LCTRL  &kp A   &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SQT   &kp ENTER
-            &kp LSHFT  &kp Z   &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp SLASH &kp LSHFT
-            &kp ESC    &kp LALT              &mo 2  &kp SPACE  &mo 1  &kp LA(GRAVE)              &mo 3     &kp LGUI
-        >;
-		//&ec_ms_lとrは、上のビヘイビアで作ったもの。
-        sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT &ec_ms_r SCRL_DOWN SCRL_UP>;
-    };
-	
-    layer_1 {
-        bindings = <
-            &kp GRAVE &kp N1  &kp N2  &kp N3  &kp N4  &kp N5       &kp N6    &kp N7   &kp N8   &kp N9    &kp N0 &kp DEL
-            &trans    &trans &trans &trans &trans &trans           &kp PG_UP &kp HOME &kp UP   &kp END   &trans &trans
-            &trans    &trans &trans &trans &trans &trans           &kp PG_DN &kp LEFT &kp DOWN &kp RIGHT &trans &trans
-            &trans    &trans               &trans &trans           &trans    &trans                      &trans &trans
-        >;
-    };
+            sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_DOWN SCRL_UP>;
+        };
 
-    layer_2 {
-        bindings = <
-            &trans &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &trans  &trans    &kp MINUS &kp EQUAL &trans     &trans
-            &trans &kp F6  &kp F7  &kp F8  &kp F9  &kp F10    &trans  &kp LBKT  &kp RBKT  &kp NUBS  &trans     &trans
-            &trans &kp F11 &kp F12 &kp F13 &kp F14 &kp F15    &trans  &kp SEMI  &kp SQT   &trans    &kp QMARK  &kp BSLH
-            &trans &trans                  &trans  &trans     &trans  &trans                        &trans     &trans
-        >;
-		//レイヤー2のときだけ、左手のエンコーダを回すとボリュームの上下ができるようになっています。
-		sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &ec_ms_r SCRL_DOWN SCRL_UP>;
-
+        click_layer {
+            // Target of the &clicklt hold on D/F/J/K.
+            // Only the four "opposite-finger" positions produce clicks; everything else is transparent.
+            //   K held -> J pos = LCLK  (middle->index roll = left click)
+            //   J held -> K pos = RCLK  (index->middle roll = right click)
+            //   D held -> F pos = LCLK  (same on the left hand)
+            //   F held -> D pos = RCLK
+            bindings = <
+&trans  &trans  &trans  &trans      &trans      &trans    &trans  &trans      &trans      &trans  &trans  &trans
+&trans  &trans  &trans  &mkp RCLK   &mkp LCLK   &trans    &trans  &mkp LCLK   &mkp RCLK   &trans  &trans  &trans
+&trans  &trans  &trans  &trans      &trans      &trans    &trans  &trans      &trans      &trans  &trans  &trans
+&trans  &trans                      &trans      &trans    &trans  &trans                          &trans  &trans
+            >;
+        };
     };
-
-    layer_3 {
-        bindings = <
-            &trans &trans &trans &trans &trans &trans      &trans  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3   &bt BT_SEL 4
-            &trans &trans &trans &trans &trans &trans      &trans  &trans        &trans        &trans        &trans         &trans
-            &trans &trans &trans &trans &trans &trans      &trans  &trans        &trans        &trans        &bt BT_CLR_ALL &bt BT_CLR
-            &trans &trans               &trans &trans      &trans  &out OUT_BLE                                    &trans         &trans
-        >;
-    };
-    scroll {
-        status = "reserved";
-    };
-
-    extra2 {
-        status = "reserved";
-    };
-};
 };
