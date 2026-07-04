@@ -143,12 +143,6 @@
     };
 };
 
-// Boost trackpad sensitivity (Elekit's default of "1x" is very low, tuned
-// for BLE stability). Higher setting also makes tap-to-click reliable.
-&glidepoint {
-    sensitivity = "4x";
-};
-
 // Turn the trackball (right, on-central) into a scroll wheel while the
 // CLICK layer is active. Hold D/F/J/K, move the ball -> scroll.
 &trackball_listener {
@@ -158,10 +152,12 @@
     };
 };
 
-// Trackpad (left, forwarded via split). Extra 2x scale on top of the "4x"
-// sensitivity above, then scroll conversion while CLICK is held.
+// Trackpad (left, forwarded via split). Software 4x motion scaler to
+// counteract Elekit's low-sensitivity default without touching the
+// on-device sensitivity setting (which is tuned for BLE stability).
+// Scroll conversion applied when the CLICK layer is held.
 &glidepoint_split_listener {
-    input-processors = <&zip_xy_scaler 2 1>;
+    input-processors = <&zip_xy_scaler 4 1>;
 
     scroll_on_click {
         layers = <CLICK>;
