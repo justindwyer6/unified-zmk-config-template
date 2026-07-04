@@ -128,6 +128,8 @@
             //   J held -> K pos = RCLK  (index->middle roll = right click)
             //   D held -> F pos = LCLK  (same on the left hand)
             //   F held -> D pos = RCLK
+            // While this layer is active, the trackpad and trackball also
+            // convert motion into scroll (see input-listener overrides below).
             bindings = <
 &trans  &trans  &trans  &trans      &trans      &trans    &trans  &trans      &trans      &trans  &trans  &trans
 &trans  &trans  &trans  &mkp RCLK   &mkp LCLK   &trans    &trans  &mkp LCLK   &mkp RCLK   &trans  &trans  &trans
@@ -135,5 +137,22 @@
 &trans  &trans                      &trans      &trans    &trans  &trans                          &trans  &trans
             >;
         };
+    };
+};
+
+// Turn the trackball (right, on-central) into a scroll wheel while the
+// CLICK layer is active. Hold D/F/J/K, move the ball -> scroll.
+&trackball_listener {
+    scroll_on_click {
+        layers = <CLICK>;
+        input-processors = <&zip_xy_to_scroll_mapper>;
+    };
+};
+
+// Same for the trackpad (left, forwarded to central via split).
+&glidepoint_split_listener {
+    scroll_on_click {
+        layers = <CLICK>;
+        input-processors = <&zip_xy_to_scroll_mapper>;
     };
 };
