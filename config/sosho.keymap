@@ -150,7 +150,7 @@
 &trackball_listener {
     scroll_on_click {
         layers = <CLICK>;
-        input-processors = <&zip_xy_scaler 1 3>, <&zip_xy_to_scroll_mapper>;
+        input-processors = <&zip_xy_scaler 1 5>, <&zip_xy_to_scroll_mapper>;
     };
 };
 
