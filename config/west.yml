@@ -10,6 +10,8 @@ manifest:
       url-base: https://github.com/badjeff
     - name: elekit-official
       url-base: https://github.com/elekit-official
+    - name: te9no
+      url-base: https://github.com/te9no
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -25,5 +27,8 @@ manifest:
       remote: elekit-official
       revision: main
       path: modules/zmk_encoder
+    - name: zmk-input-processor-keybind
+      remote: te9no
+      revision: main
   self:
     path: config

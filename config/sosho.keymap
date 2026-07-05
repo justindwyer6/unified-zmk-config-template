@@ -7,6 +7,7 @@
 
 #include <behaviors.dtsi>
 #include <input/processors.dtsi>
+#include <input/processors/zmk-input-processor-keybind.dtsi>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
@@ -53,6 +54,25 @@
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
         };
+    };
+
+    // Convert trackpad motion into arrow key presses.
+    // Order matters: RIGHT (X+), LEFT (X-), UP (Y+), DOWN (Y-).
+    // - `threshold` sets how much motion must accumulate before firing a key.
+    // - `tick` throttles repeats when motion continues.
+    // Tune these later if arrows fire too often or too rarely.
+    trackpad_arrows: trackpad_arrows {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        track_remainders;
+        bindings = <&kp RIGHT>, <&kp LEFT>, <&kp UP>, <&kp DOWN>;
+        tick = <60>;
+        wait-ms = <0>;
+        tap-ms = <10>;
+        mode = <1>;
+        threshold = <40>;
+        max_threshold = <200>;
+        max_pending_activations = <10>;
     };
 };
 
@@ -154,15 +174,9 @@
     };
 };
 
-// Trackpad (left, forwarded via split). Software 4x motion scaler to
-// counteract Elekit's low-sensitivity default without touching the
-// on-device sensitivity setting (which is tuned for BLE stability).
-// Scroll conversion applied when the CLICK layer is held.
+// Trackpad (left, forwarded via split) is repurposed as a directional
+// gesture pad: swipe right/left/up/down -> arrow key. The keybind
+// processor consumes the X/Y motion, so no cursor motion is emitted.
 &glidepoint_split_listener {
-    input-processors = <&zip_xy_scaler 4 1>;
-
-    scroll_on_click {
-        layers = <CLICK>;
-        input-processors = <&zip_xy_to_scroll_mapper>;
-    };
+    input-processors = <&trackpad_arrows>;
 };
