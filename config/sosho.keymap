@@ -50,6 +50,21 @@
             mods = <(MOD_LSFT|MOD_RSFT)>;
         };
 
+        // Thumb-row mod-tap. Strict tap-preferred so fast typing on the space
+        // and other thumb dual-purpose keys never accidentally engages the
+        // modifier. Tapping-term is longer than default because thumbs move
+        // more slowly than fingers; require-prior-idle-ms suppresses the hold
+        // if a normal key was just pressed (i.e., during a typing flow).
+        thmt: thumb_modtap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping-term-ms = <250>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <150>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
+
         // Encoder-driven horizontal / vertical scroll (used on POINTER layer).
         ec_ms_l: ec_ms_h {
             compatible = "zmk,behavior-encoder-mouse-scroll";
@@ -97,8 +112,8 @@
             bindings = <
 &lt NAV DEL     &kp Q       &kp W  &kp E              &kp R              &kp T          &kp Y  &kp U              &kp I              &kp O         &kp P          &bsdel
 &lt OPPOSIT TAB &kp A       &kp S  &clicklt CLICK D   &clicklt CLICK F   &kp G          &kp H  &clicklt CLICK J   &clicklt CLICK K   &kp L         &lt NAV SEMI   &lt OPPOSIT TAB
-&lt SYM GRAVE   &lt NPAD Z  &kp X  &kp C              &kp V              &kp B          &kp N  &kp M              &kp COMMA          &mt RALT DOT  &lt NPAD FSLH  &lt SYM SQT
-&mt LALT ENTER  &mt LCTRL ESC                         &kp LSHFT          &mt LGUI SPACE     &mt RGUI SPACE         &kp RSHFT                       &mt RCTRL BSLH &mt RALT ENTER
+&lt SYM GRAVE   &lt NPAD Z  &kp X  &kp C              &kp V              &kp B          &kp N  &kp M              &kp COMMA          &thmt RALT DOT  &lt NPAD FSLH  &lt SYM SQT
+&thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT                       &thmt RCTRL BSLH &thmt RALT ENTER
             >;
 
             // Left encoder = brightness, Right encoder = volume.
@@ -176,12 +191,12 @@
             //   - pos 11 = plain DEL (no NAV-hold on top-row DEL)
             //   - pos 22 = &lt NAV A (NAV pinky-hold added for one-hand access)
             //   - pos 35 = &lt SYM ESC (spinko's GRV->ESC swap on this pinky)
-            //   - pos 42 = &mt RCTRL GRAVE (spinko's ESC->GRV swap on this thumb)
+            //   - pos 42 = &thmt RCTRL GRAVE (spinko's ESC->GRV swap on this thumb)
             bindings = <
 &bsdel           &kp P              &kp O            &kp I              &kp U              &kp Y          &kp T  &kp R              &kp E              &kp W          &kp Q          &kp DEL
 &lt OPPOSIT TAB  &lt NAV SEMI       &kp L            &clicklt CLICK K   &clicklt CLICK J   &kp H          &kp G  &clicklt CLICK F   &clicklt CLICK D   &kp S          &lt NAV A      &lt OPPOSIT TAB
-&lt SYM SQT      &lt NPAD FSLH      &mt LALT DOT     &kp COMMA          &kp M              &kp N          &kp B  &kp V              &kp C              &kp X          &lt NPAD Z     &lt SYM ESC
-&mt LALT ENTER   &mt LCTRL BSLH                                         &kp LSHFT          &mt LGUI SPACE     &mt RGUI SPACE         &kp RSHFT                        &mt RCTRL GRAVE &mt RALT ENTER
+&lt SYM SQT      &lt NPAD FSLH      &thmt LALT DOT     &kp COMMA          &kp M              &kp N          &kp B  &kp V              &kp C              &kp X          &lt NPAD Z     &lt SYM ESC
+&thmt LALT ENTER   &thmt LCTRL BSLH                                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT                        &thmt RCTRL GRAVE &thmt RALT ENTER
             >;
         };
     };
