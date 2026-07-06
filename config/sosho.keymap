@@ -76,23 +76,22 @@
         };
     };
 
-    // Convert trackpad motion into arrow key presses.
-    // Order matters: RIGHT (X+), LEFT (X-), UP (Y+), DOWN (Y-).
-    // - `threshold` sets how much motion must accumulate before firing a key.
-    // - `tick` throttles repeats when motion continues.
-    // Tune these later if arrows fire too often or too rarely.
+    // Convert trackpad motion into browser back/forward.
+    // Order: RIGHT (X+) -> Cmd+], LEFT (X-) -> Cmd+[, UP/DOWN -> no-op.
+    // Higher threshold than the previous 4-way version because these are
+    // deliberate navigation gestures, not fine motion.
     trackpad_arrows: trackpad_arrows {
         compatible = "zmk,input-processor-keybind";
         #input-processor-cells = <0>;
         track_remainders;
-        bindings = <&kp RIGHT>, <&kp LEFT>, <&kp UP>, <&kp DOWN>;
-        tick = <60>;
+        bindings = <&kp LG(RBKT)>, <&kp LG(LBKT)>, <&none>, <&none>;
+        tick = <100>;
         wait-ms = <0>;
         tap-ms = <10>;
         mode = <1>;
-        threshold = <40>;
-        max_threshold = <200>;
-        max_pending_activations = <10>;
+        threshold = <100>;
+        max_threshold = <300>;
+        max_pending_activations = <5>;
     };
 };
 
