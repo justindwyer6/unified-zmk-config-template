@@ -110,7 +110,7 @@
             bindings = <
 &tog NAV      &kp LG(LSHFT)   &kp LA(LSHFT)    &kp UP           &kp LA(LGUI)     &kp C_VOL_UP    &kp PG_UP  &kp RCTRL  &kp UP        &kp RCTRL  &trans   &kp BSPC
 &trans        &kp LCTRL       &mt LALT LEFT    &mt LSHFT DOWN   &mt LGUI RIGHT   &kp C_VOL_DN    &kp PG_DN  &kp LEFT   &kp DOWN      &kp RIGHT  &trans   &kp DEL
-&kp C_BRI_DN  &kp C_BRI_UP    &mt LALT C_PREV  &kp C_NEXT       &mt LALT C_PP    &kp C_MUTE      &kp RGUI   &kp RALT   &tog POINTER  &kp RALT   &kp ESC  &kp TAB
+&kp C_BRI_DN  &kp C_BRI_UP    &mt LALT C_PREV  &kp C_NEXT       &mt LALT C_PP    &kp C_MUTE      &kp RGUI   &kp RALT   &kp LBKT      &kp RBKT   &kp ESC  &kp TAB
 &kp BSPC      &trans                                            &trans           &trans          &trans     &trans                                &trans   &trans
             >;
         };
@@ -133,7 +133,7 @@
 &tog SYM  &kp GRAVE  &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR    &trans      &kp AMPS  &kp STAR   &kp LPAR   &kp RPAR   &kp BSPC
 &trans    &kp EQUAL  &kp DLLR   &kp PRCNT  &kp CARET  &kp PLUS    &kp PLUS    &kp DLLR  &kp PRCNT  &kp CARET  &kp COLON  &kp GRAVE
 &trans    &kp MINUS  &kp EXCL   &kp AT     &kp HASH   &kp MINUS   &kp MINUS   &kp EXCL  &kp AT     &kp HASH   &kp QMARK  &kp TAB
-&kp BSPC  &trans                          &kp LBKT    &trans      &trans  &kp RBKT                                       &kp PIPE   &trans
+&kp BSPC  &trans                          &trans      &trans      &trans  &trans                                         &kp PIPE   &trans
             >;
         };
 
