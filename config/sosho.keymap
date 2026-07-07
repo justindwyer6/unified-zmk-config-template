@@ -12,11 +12,6 @@
 #include <dt-bindings/zmk/pointing.h>
 #include <dt-bindings/zmk/outputs.h>
 
-// te9no/zmk-input-processor-keybind ships a stale dtsi header include
-// (dt-bindings/zmk/input-processor-keybind.h) that doesn't exist in the
-// module tree. Skip that dtsi and declare our own node below using the
-// module's compatible string directly.
-
 #define QWERTY  0
 #define NAV     1
 #define NPAD    2
@@ -74,24 +69,6 @@
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
         };
-    };
-
-    // Convert trackpad motion into browser back/forward.
-    // Order: RIGHT (X+) -> Cmd+], LEFT (X-) -> Cmd+[, UP/DOWN -> no-op.
-    // Higher threshold than the previous 4-way version because these are
-    // deliberate navigation gestures, not fine motion.
-    trackpad_arrows: trackpad_arrows {
-        compatible = "zmk,input-processor-keybind";
-        #input-processor-cells = <0>;
-        track_remainders;
-        bindings = <&kp LG(RBKT)>, <&kp LG(LBKT)>, <&none>, <&none>;
-        tick = <100>;
-        wait-ms = <0>;
-        tap-ms = <10>;
-        mode = <1>;
-        threshold = <100>;
-        max_threshold = <300>;
-        max_pending_activations = <5>;
     };
 };
 
@@ -212,9 +189,5 @@
     };
 };
 
-// Trackpad (left, forwarded via split) is repurposed as a directional
-// gesture pad: swipe right/left/up/down -> arrow key. The keybind
-// processor consumes the X/Y motion, so no cursor motion is emitted.
-&glidepoint_split_listener {
-    input-processors = <&trackpad_arrows>;
-};
+// Trackpad (left, forwarded via split) reverts to stock behavior:
+// cursor motion + tap-to-click. No processor overrides.
