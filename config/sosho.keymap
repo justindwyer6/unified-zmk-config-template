@@ -18,22 +18,19 @@
 #define NPAD    2
 #define SYM     3
 #define POINTER 4
-#define CLICK   5
-#define OPPOSIT 6
+#define OPPOSIT 5
 
 / {
     behaviors {
-        // Layer-tap for D/F/J/K home-row keys.
-        // Hold enters the CLICK layer; tap types the letter.
-        // tap-preferred + require-prior-idle-ms prevents accidental clicks during fast typing.
-        clicklt: click_layer_tap {
+        // Right-shift hold-tap: hold = keycode (Shift), tap = mouse button (LCLK).
+        // hold-preferred so Shift+letter combos always shift; a quick standalone
+        // tap of RSHFT emits the mouse click.
+        shift_lclk: shift_lclk {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             tapping-term-ms = <200>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <125>;
-            flavor = "tap-preferred";
-            bindings = <&mo>, <&kp>;
+            flavor = "hold-preferred";
+            bindings = <&kp>, <&mkp>;
         };
 
         // Shift+Backspace -> Delete. Cmd/Ctrl/Alt+Backspace stays as real
@@ -92,18 +89,42 @@
 };
 
 / {
+    // Right-hand home-row combos for mouse clicks (matches upstream Elekit defaults).
+    //   J + K -> LCLK   (positions 19, 20)
+    //   K + L -> RCLK   (positions 20, 21)
+    //   J + L -> MCLK   (positions 19, 21) -- slightly longer window
+    combos {
+        compatible = "zmk,combos";
+        combo_LCLK {
+            timeout-ms = <50>;
+            key-positions = <19 20>;
+            bindings = <&mkp LCLK>;
+        };
+        combo_RCLK {
+            timeout-ms = <50>;
+            key-positions = <20 21>;
+            bindings = <&mkp RCLK>;
+        };
+        combo_MCLK {
+            timeout-ms = <90>;
+            key-positions = <19 21>;
+            bindings = <&mkp MCLK>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
-            // Base QWERTY. D/F/J/K are hold-taps into CLICK layer.
+            // Base QWERTY. Mouse clicks come from J/K/L combos (see combos block above).
+            // Right shift is a hold-tap: hold = Shift, tap = LCLK (just for fun).
             // Thumb row (row 3): outer=ENTER, inner-outer=Ctrl/Esc, then Shift,
             // then innermost=Cmd/Space -- matches the original spinko layout.
             bindings = <
 &lt NAV DEL     &kp Q       &kp W  &kp E              &kp R              &kp T          &kp Y  &kp U              &kp I              &kp O         &kp P          &bsdel
-&lt OPPOSIT TAB &kp A       &kp S  &clicklt CLICK D   &clicklt CLICK F   &kp G          &kp H  &clicklt CLICK J   &clicklt CLICK K   &kp L         &lt NAV SEMI   &lt OPPOSIT TAB
+&lt OPPOSIT TAB &kp A       &kp S  &kp D              &kp F              &kp G          &kp H  &kp J              &kp K              &kp L         &lt NAV SEMI   &lt OPPOSIT TAB
 &lt SYM GRAVE   &lt NPAD Z  &kp X  &kp C              &kp V              &kp B          &kp N  &kp M              &kp COMMA          &thmt RALT DOT  &lt NPAD FSLH  &lt SYM SQT
-&thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT                       &thmt RCTRL BSLH &thmt RALT ENTER
+&thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &shift_lclk RSHFT LCLK          &thmt RCTRL BSLH &thmt RALT ENTER
             >;
 
             // Left encoder = brightness, Right encoder = volume.
@@ -156,23 +177,6 @@
             sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_DOWN SCRL_UP>;
         };
 
-        click_layer {
-            // Target of the &clicklt hold on D/F/J/K.
-            // Only the four "opposite-finger" positions produce clicks; everything else is transparent.
-            //   K held -> J pos = LCLK  (middle->index roll = left click)
-            //   J held -> K pos = RCLK  (index->middle roll = right click)
-            //   D held -> F pos = LCLK  (same on the left hand)
-            //   F held -> D pos = RCLK
-            // While this layer is active, the trackpad and trackball also
-            // convert motion into scroll (see input-listener overrides below).
-            bindings = <
-&trans  &trans  &trans  &trans      &trans      &trans    &trans  &trans      &trans      &trans  &trans  &trans
-&trans  &trans  &trans  &mkp RCLK   &mkp LCLK   &trans    &trans  &mkp LCLK   &mkp RCLK   &trans  &trans  &trans
-&trans  &trans  &trans  &trans      &trans      &trans    &trans  &trans      &trans      &trans  &trans  &trans
-&trans  &trans                      &trans      &trans    &trans  &trans                          &trans  &trans
-            >;
-        };
-
         opposit_layer {
             // Horizontal mirror of QWERTY for one-handed typing.
             // Hold either TAB (row 1 pos 12 or 23) to enter momentarily.
@@ -184,22 +188,23 @@
             //   - pos 42 = &thmt RCTRL GRAVE (spinko's ESC->GRV swap on this thumb)
             bindings = <
 &bsdel           &kp P              &kp O            &kp I              &kp U              &kp Y          &kp T  &kp R              &kp E              &kp W          &kp Q          &kp DEL
-&lt OPPOSIT TAB  &lt NAV SEMI       &kp L            &clicklt CLICK K   &clicklt CLICK J   &kp H          &kp G  &clicklt CLICK F   &clicklt CLICK D   &kp S          &lt NAV A      &lt OPPOSIT TAB
+&lt OPPOSIT TAB  &lt NAV SEMI       &kp L            &kp K              &kp J              &kp H          &kp G  &kp F              &kp D              &kp S          &lt NAV A      &lt OPPOSIT TAB
 &lt SYM SQT      &lt NPAD FSLH      &thmt LALT DOT     &kp COMMA          &kp M              &kp N          &kp B  &kp V              &kp C              &kp X          &lt NPAD Z     &lt SYM ESC
-&thmt LALT ENTER   &thmt LCTRL BSLH                                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT                        &thmt RCTRL GRAVE &thmt RALT ENTER
+&thmt LALT ENTER   &thmt LCTRL BSLH                                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &shift_lclk RSHFT LCLK          &thmt RCTRL GRAVE &thmt RALT ENTER
             >;
         };
     };
 };
 
 // Turn the trackball (right, on-central) into a scroll wheel while the
-// CLICK layer is active. Hold D/F/J/K, move the ball -> scroll.
+// POINTER layer is active. Toggle POINTER (top-left key on that layer),
+// move the ball -> scroll. Toggle off to return to cursor.
 // Scaling is applied AFTER the XY->scroll mapping via zip_scroll_scaler,
 // which uses track-remainders so slow motion accumulates instead of being
 // truncated to zero. 1/8 is a moderate divisor -- lower it for slower scroll.
 &trackball_listener {
-    scroll_on_click {
-        layers = <CLICK>;
+    scroll_on_pointer {
+        layers = <POINTER>;
         input-processors = <&zip_xy_to_scroll_mapper>, <&zip_scroll_scaler 1 8>;
     };
 };
