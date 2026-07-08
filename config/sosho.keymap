@@ -17,8 +17,7 @@
 #define NAV     1
 #define NPAD    2
 #define SYM     3
-#define POINTER 4
-#define OPPOSIT 5
+#define OPPOSIT 4
 
 / {
     behaviors {
@@ -58,7 +57,7 @@
             bindings = <&kp>, <&kp>;
         };
 
-        // Encoder-driven horizontal / vertical scroll (used on POINTER layer).
+        // Encoder-driven horizontal / vertical scroll (used on NAV layer).
         ec_ms_l: ec_ms_h {
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
@@ -133,13 +132,18 @@
 
         nav_layer {
             // spinko _NAV: arrows on right home row, media/brightness/volume on left, page-nav on inner columns.
-            // OPPOSIT/MOUSE references collapsed (OPPOSIT dropped, MOUSE becomes POINTER toggle).
+            // Also the "scroll mode" for the right trackball -- see trackball_listener at the
+            // bottom of this file. Hold &lt NAV DEL (top-left of default) to scroll with the
+            // ball momentarily; release to return to cursor. Encoders are horizontal (L) /
+            // vertical (R) scroll while NAV is active.
             bindings = <
 &tog NAV      &kp LG(LSHFT)   &kp LA(LSHFT)    &kp UP           &kp LA(LGUI)     &kp C_VOL_UP    &kp PG_UP  &kp RCTRL  &kp UP        &kp RCTRL  &trans   &kp BSPC
 &trans        &kp LCTRL       &mt LALT LEFT    &mt LSHFT DOWN   &mt LGUI RIGHT   &kp C_VOL_DN    &kp PG_DN  &kp LEFT   &kp DOWN      &kp RIGHT  &trans   &kp DEL
 &kp C_BRI_DN  &kp C_BRI_UP    &mt LALT C_PREV  &kp C_NEXT       &mt LALT C_PP    &kp C_MUTE      &kp RGUI   &kp RALT   &kp LBKT      &kp RBKT   &kp ESC  &kp TAB
 &kp BSPC      &trans                                            &trans           &trans          &trans     &trans                                &trans   &trans
             >;
+
+            sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_DOWN SCRL_UP>;
         };
 
         npad_layer {
@@ -164,19 +168,6 @@
             >;
         };
 
-        pointer_layer {
-            // Pointing device / Bluetooth / output tuning.
-            // Encoders switch to horizontal (L) and vertical (R) scroll here.
-            bindings = <
-&tog POINTER  &trans          &trans  &trans  &trans  &trans      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &out OUT_BLE
-&trans        &trans          &trans  &trans  &trans  &trans      &trans        &mkp LCLK     &mkp MCLK     &mkp RCLK     &trans        &out OUT_USB
-&bt BT_CLR    &bt BT_CLR_ALL  &trans  &trans  &trans  &trans      &trans        &trans        &trans        &trans        &trans        &trans
-&trans        &trans                          &trans  &trans      &trans        &trans                                    &trans        &trans
-            >;
-
-            sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_DOWN SCRL_UP>;
-        };
-
         opposit_layer {
             // Horizontal mirror of QWERTY for one-handed typing.
             // Hold either TAB (row 1 pos 12 or 23) to enter momentarily.
@@ -197,14 +188,15 @@
 };
 
 // Turn the trackball (right, on-central) into a scroll wheel while the
-// POINTER layer is active. Toggle POINTER (top-left key on that layer),
-// move the ball -> scroll. Toggle off to return to cursor.
+// NAV layer is active. Hold &lt NAV DEL (top-left of default) -> scroll;
+// release -> cursor. Encoders also switch to horizontal/vertical scroll
+// on NAV (see nav_layer sensor-bindings above).
 // Scaling is applied AFTER the XY->scroll mapping via zip_scroll_scaler,
 // which uses track-remainders so slow motion accumulates instead of being
 // truncated to zero. 1/8 is a moderate divisor -- lower it for slower scroll.
 &trackball_listener {
-    scroll_on_pointer {
-        layers = <POINTER>;
+    scroll_on_nav {
+        layers = <NAV>;
         input-processors = <&zip_xy_to_scroll_mapper>, <&zip_scroll_scaler 1 8>;
     };
 };
