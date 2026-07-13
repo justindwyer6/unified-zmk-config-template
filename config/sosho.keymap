@@ -46,7 +46,8 @@
             bindings = <&kp>, <&kp>;
         };
 
-        // Encoder-driven horizontal / vertical scroll (used on NAV layer).
+        // Encoder mouse-scroll behavior. Default layer: both encoders scroll
+        // vertically. NAV layer: both scroll horizontally.
         ec_ms_l: ec_ms_h {
             compatible = "zmk,behavior-encoder-mouse-scroll";
             #sensor-binding-cells = <2>;
@@ -114,8 +115,9 @@
 &thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT          &thmt RCTRL BSLH &thmt RALT ENTER
             >;
 
-            // Left encoder = brightness, Right encoder = volume.
-            sensor-bindings = <&inc_dec_kp C_BRI_DN C_BRI_UP  &inc_dec_kp C_VOL_DN C_VOL_UP>;
+            // Both encoders scroll vertically. Hold NAV for horizontal scroll.
+            // Brightness/volume are still reachable via keys on the NAV layer.
+            sensor-bindings = <&ec_ms_l SCRL_DOWN SCRL_UP  &ec_ms_r SCRL_DOWN SCRL_UP>;
         };
 
         nav_layer {
@@ -131,7 +133,8 @@
 &kp BSPC      &trans                                            &trans           &trans          &trans     &trans                                &trans   &trans
             >;
 
-            sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_DOWN SCRL_UP>;
+            // Both encoders scroll horizontally on NAV (trackball still vertical).
+            sensor-bindings = <&ec_ms_l SCRL_LEFT SCRL_RIGHT  &ec_ms_r SCRL_LEFT SCRL_RIGHT>;
         };
 
         npad_layer {
