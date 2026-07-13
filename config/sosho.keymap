@@ -21,18 +21,7 @@
 
 / {
     behaviors {
-        // Right-shift hold-tap: hold = keycode (Shift), tap = mouse button (LCLK).
-        // hold-preferred so Shift+letter combos always shift; a quick standalone
-        // tap of RSHFT emits the mouse click.
-        shift_lclk: shift_lclk {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            flavor = "hold-preferred";
-            bindings = <&kp>, <&mkp>;
-        };
-
-        // Shift+Backspace -> Delete. Cmd/Ctrl/Alt+Backspace stays as real
+// Shift+Backspace -> Delete. Cmd/Ctrl/Alt+Backspace stays as real
         // Backspace so Cmd+Bspc still deletes lines / Opt+Bspc still deletes
         // words on macOS.
         bsdel: bsdel {
@@ -116,14 +105,13 @@
 
         default_layer {
             // Base QWERTY. Mouse clicks come from J/K/L combos (see combos block above).
-            // Right shift is a hold-tap: hold = Shift, tap = LCLK (just for fun).
             // Thumb row (row 3): outer=ENTER, inner-outer=Ctrl/Esc, then Shift,
             // then innermost=Cmd/Space -- matches the original spinko layout.
             bindings = <
 &lt NAV DEL     &kp Q       &kp W  &kp E              &kp R              &kp T          &kp Y  &kp U              &kp I              &kp O         &kp P          &bsdel
 &lt OPPOSIT TAB &kp A       &kp S  &kp D              &kp F              &kp G          &kp H  &kp J              &kp K              &kp L         &lt NAV SEMI   &lt OPPOSIT TAB
 &lt SYM GRAVE   &lt NPAD Z  &kp X  &kp C              &kp V              &kp B          &kp N  &kp M              &kp COMMA          &thmt RALT DOT  &lt NPAD FSLH  &lt SYM SQT
-&thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &shift_lclk RSHFT LCLK          &thmt RCTRL BSLH &thmt RALT ENTER
+&thmt LALT ENTER  &thmt LCTRL ESC                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT          &thmt RCTRL BSLH &thmt RALT ENTER
             >;
 
             // Left encoder = brightness, Right encoder = volume.
@@ -181,7 +169,7 @@
 &bsdel           &kp P              &kp O            &kp I              &kp U              &kp Y          &kp T  &kp R              &kp E              &kp W          &kp Q          &kp DEL
 &lt OPPOSIT TAB  &lt NAV SEMI       &kp L            &kp K              &kp J              &kp H          &kp G  &kp F              &kp D              &kp S          &lt NAV A      &lt OPPOSIT TAB
 &lt SYM SQT      &lt NPAD FSLH      &thmt LALT DOT     &kp COMMA          &kp M              &kp N          &kp B  &kp V              &kp C              &kp X          &lt NPAD Z     &lt SYM ESC
-&thmt LALT ENTER   &thmt LCTRL BSLH                                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &shift_lclk RSHFT LCLK          &thmt RCTRL GRAVE &thmt RALT ENTER
+&thmt LALT ENTER   &thmt LCTRL BSLH                                         &kp LSHFT          &thmt LGUI SPACE     &thmt RGUI SPACE         &kp RSHFT          &thmt RCTRL GRAVE &thmt RALT ENTER
             >;
         };
     };
