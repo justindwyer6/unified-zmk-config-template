@@ -3,7 +3,7 @@
  * Translated from justindwyer6/qmk_firmware keyboards/lets_split/keymaps/spinko/keymap.c.
  */
 
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 150
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 500
 
 #include <behaviors.dtsi>
 #include <input/processors.dtsi>
